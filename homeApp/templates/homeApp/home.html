@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planet Detroit's Environmental Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <div class="container mx-auto px-4 py-10 mt-20">
+        <h1 class="text-4xl font-bold text-center mb-6">
+            Welcome to Planet Detroit's Environmental Dashboard
+        </h1>
+        <p class="text-center mb-12">
+            The Environmental Dashboard serves as a resource for the public to learn about the environmental conditions of South East Michigan.
+        </p>
+
+        <div class="flex flex-wrap justify-center gap-4">
+                <!-- Card 1 -->
+                <div class="relative group w-full max-w-sm">
+                    <div class="absolute inset-0 bg-blue-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <img src="{% static 'homeApp/images/climate.png' %}" alt="Climate Shift" class="rounded-lg"/>
+                    <div class="hidden group-hover:flex absolute inset-0 flex-col justify-between p-8 bg-blue-600 rounded-lg">
+                        <div>
+                            <h2 class="text-white text-2xl font-bold mb-4">Climate Shift</h2>
+                            <p class="text-white">Details on climate shift patterns over time and their implications.</p>
+                        </div>
+                        <a href="/climate" class="mt-4 self-center bg-white text-blue-600 font-bold rounded-lg px-6 py-2">Learn More</a>
+                    </div>
+
+                </div>
+
+                <!-- Card 2 -->
+                <div class="relative group w-full max-w-sm">
+                    <div class="absolute inset-0 bg-blue-500 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <img src="{% static 'homeApp/images/airquality.png' %}" alt="Air Quality" class="rounded-lg"/>
+                    <div class="hidden group-hover:flex absolute inset-0 flex-col justify-between p-8 bg-blue-600 rounded-lg">
+                        <div>
+                            <h2 class="text-white text-2xl font-bold mb-4">Air Quality</h2>
+                            <p class="text-white">Explore real-time data on air quality and its effects on health</p>
+                        </div>
+                        <a href="/air-quality" class="mt-4 self-center bg-white text-blue-600 font-bold rounded-lg px-6 py-2">Learn More</a>
+                    </div>
+                </div>
+        </div>
+        <div class="text-center mt-10 px-6 py-4">
+            <p>Our Environmental Dashboard is a comprehensive tool designed to bring you insights into the ecological well-being of South East Michigan. Navigate through our interactive maps to view current air quality indices, explore historical data on climate shifts, and understand the implications of environmental changes. Use the dropdown menus to select a city and instantly access localized environmental metrics. Our 'Learn More' links offer deeper dives into specific areas, helping you make informed decisions towards a sustainable future.</p>
+        </div>
+    </div>
+</body>
+</html>

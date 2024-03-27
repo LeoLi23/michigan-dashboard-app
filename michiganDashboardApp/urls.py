@@ -18,7 +18,11 @@ from django.contrib import admin
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include('homeApp.urls')),  # add homeApp's URLs
     path('climate/', include('climateApp.urls')),  # add airQualityApp's URLs
     path('air-quality/', include('airQualityApp.urls')),  # add airQualityApp's URLs
 ]
+
+# command to create a project named homeApp
+# python manage.py startapp homeApp
 
