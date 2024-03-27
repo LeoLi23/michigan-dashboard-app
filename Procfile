@@ -1,0 +1,3 @@
+web: gunicorn michiganDashboardApp.wsgi
+
+

@@ -15,12 +15,8 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# API_KEY = 'af4317a4fa9b1f02b90b0234e402845f'
-# API_KEY = 'c81e8fcf2e7b4f1e9ff89fb6d2d62ac6'
-TOKEN = '77321fcc19f6850d9b046aa282f94de6688337ea'
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
+# TOKEN = '77321fcc19f6850d9b046aa282f94de6688337ea'
+TOKEN = os.getenv('TOKEN')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '-xj^kvmgc2j9jjxqpvvt*%)1+y4c06i&@0c@g4*%sd$&4u8-_#'
@@ -52,8 +48,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
-
 
 ROOT_URLCONF = 'michiganDashboardApp.urls'
 
@@ -120,6 +116,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'airQualityApp/static')
 ]
