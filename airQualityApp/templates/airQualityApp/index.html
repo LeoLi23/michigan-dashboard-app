@@ -249,23 +249,36 @@
 
                     var marker = new H.map.Marker({lat: lat, lng: lng}, {icon:icon});
                     marker.addEventListener('tap', function() {
+                        const uniqueId = generateUUID();
+                        console.log("uuid = ", uniqueId);
                         const myPopup = new Popup({
                             id: "my-popup",
                             title: `${city}`,
-                            content: generatePopUpContent(entry, index),
+                            content: generatePopUpContent(entry, index, uniqueId),
                         });
 
-                        myPopup.show();
-                        setTimeout(() => renderChartInPopup(entry, index), 0);
+                        myPopup.show(); // show the popup
+
+                        // listen for the popup close event to clean up charts
+                        myPopup.onClose = function() {
+                            console.log("Cleaning");
+                            destroyAllCharts();
+                        };
+                        setTimeout(() => renderChartInPopup(entry, index, uniqueId), 0);
                     });
                     map.addObject(marker);
                 });
             }
 
+            function generateUUID(){
+                return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+                    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+                );
+            }
 
-            function generatePopUpContent(entry, index) {
+            function generatePopUpContent(entry, index, uniqueId) {
                 // 生成三个canvas元素，每个用于显示一个污染物的图表
-                const canvasIds = ['O3', 'PM10', 'PM2.5'].map(pollutant => `${pollutant}-${index}`);
+                const canvasIds = ['O3', 'PM10', 'PM2.5'].map(pollutant => `${pollutant}-${index}-${uniqueId}`);
                 console.log(canvasIds);
                 const canvasElements = canvasIds.map(id =>
                     `<canvas id="${id}" width="600" height="400"></canvas>`
@@ -298,9 +311,12 @@
             function createChart(canvasId, labels, data, activePollutant){
                 setCanvasSize(canvasId, 800, 300);
                 const ctx = document.getElementById(canvasId).getContext('2d');
-                console.log("data: ", data);
                 if (ctx) {
-                    new Chart(ctx, {
+                    if (chartInstances[canvasId]) {
+                        chartInstances[canvasId].destroy();
+                    }
+
+                    chartInstances[canvasId] = new Chart(ctx, {
                         type: 'line', // 修改为折线图
                         data: {
                             labels: labels, // 使用动态的时间标签
@@ -324,8 +340,10 @@
                 }
             }
 
-            function renderChartInPopup(entry, index){
-                const canvasIds = ['O3', 'PM10', 'PM2.5'].map(pollutant => `${pollutant}-${index}`);
+            function renderChartInPopup(entry, index, uniqueId){
+                destroyAllCharts(); // clean up any existing charts
+
+                const canvasIds = ['O3', 'PM10', 'PM2.5'].map(pollutant => `${pollutant}-${index}-${uniqueId}`);
                 const future_data = entry.future_data;
 
                 canvasIds.forEach((canvasId, i) => {
@@ -340,6 +358,16 @@
             }
 
 
+            // Function to destroy all chart instances
+            function destroyAllCharts() {
+                Object.keys(chartInstances).forEach(chartId => {
+                    if (chartInstances[chartId]) {
+                        chartInstances[chartId].destroy();
+                    }
+                });
+                chartInstances = {}; // Reset the references
+            }
+
             function clearMapMarkers(){
                 map.getObjects().forEach(function(object) {
                     if (object instanceof H.map.Marker) {
@@ -351,7 +379,7 @@
 
             var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
             var ui = H.ui.UI.createDefault(map, defaultLayers);
-
+            let chartInstances = {}; // a global object to hold chart instances
             var geoJsonUrl = "{% static 'airQualityApp/data/michigan.json' %}";
 
             // 创建 GeoJSON reader
