@@ -135,7 +135,6 @@
             );
 
             var all_data = {{ data|safe }};
-            console.log(all_data);
             insertCitiesIntoDropdown();
 
             const citySelect = document.getElementById('citySelect');
@@ -148,6 +147,23 @@
             // insert all city names into dropdown
             function insertCitiesIntoDropdown(){
                 var citySelect = document.getElementById('citySelect');
+
+                // Sort the all_data array alphabetically based on cityName
+                all_data.sort(function(a, b) {
+                    var cityA = a.cityName.toUpperCase(); // ignore upper and lowercase
+                    var cityB = b.cityName.toUpperCase(); // ignore upper and lowercase
+                    if (cityA < cityB) {
+                        return -1;
+                    }
+                    if (cityA > cityB) {
+                        return 1;
+                    }
+
+                    // names must be equal
+                    return 0;
+                });
+
+                // Insert sorted city names into the dropdown
                 all_data.forEach(function(entry, index) {
                     var city = entry.cityName;
                     var option = document.createElement('option');
@@ -250,7 +266,6 @@
                     var marker = new H.map.Marker({lat: lat, lng: lng}, {icon:icon});
                     marker.addEventListener('tap', function() {
                         const uniqueId = generateUUID();
-                        console.log("uuid = ", uniqueId);
                         const myPopup = new Popup({
                             id: "my-popup",
                             title: `${city}`,
@@ -261,7 +276,6 @@
 
                         // listen for the popup close event to clean up charts
                         myPopup.onClose = function() {
-                            console.log("Cleaning");
                             destroyAllCharts();
                         };
                         setTimeout(() => renderChartInPopup(entry, index, uniqueId), 0);
@@ -279,7 +293,6 @@
             function generatePopUpContent(entry, index, uniqueId) {
                 // 生成三个canvas元素，每个用于显示一个污染物的图表
                 const canvasIds = ['O3', 'PM10', 'PM2.5'].map(pollutant => `${pollutant}-${index}-${uniqueId}`);
-                console.log(canvasIds);
                 const canvasElements = canvasIds.map(id =>
                     `<canvas id="${id}" width="600" height="400"></canvas>`
                 ).join('');

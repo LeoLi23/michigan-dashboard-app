@@ -1,6 +1,7 @@
 import concurrent
 import requests
 import json
+import os
 from .utils import *
 from django.conf import settings
 from django.shortcuts import render
@@ -99,7 +100,7 @@ def fetch_api_data_and_process():
 
 
 def mapView(request):
-    filepath = 'airQualityApp/data.json'
+    filepath = os.path.join(settings.BASE_DIR, 'airQualityApp/data.json')
     data_list = load_json_data(filepath)
     today_str = datetime.now().strftime("%Y-%m-%d")
 
