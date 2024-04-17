@@ -1,4 +1,4 @@
-{% load static %}
+{% load static %} {# load static files #}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -8,67 +8,80 @@
     <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
     <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
     <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-data.js"></script>
+    {#    use tailwindcss, popup-js, and chart.js   #}
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@simondmc/popup-js@1.4.3/popup.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <title></title>
     <style>
+    /* Set default font and background for the body */
     body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background: #f0f0f0;
-        }
+        font-family: Arial, sans-serif; /* Use Arial as the primary font */
+        margin: 0; /* Remove default margin */
+        padding: 0; /* Remove default padding */
+        background: #f0f0f0; /* Light grey background color */
+    }
+
+    /* Style for the header section */
     #header {
-        text-align: center;
-        padding: 20px 0;
-        margin-bottom: 10px; /* Adjust the margin as needed */
+        text-align: center; /* Center align text */
+        padding: 20px 0; /* Top and bottom padding */
+        margin-bottom: 10px; /* Space below the header */
     }
+
+    /* Style for main heading (h1) in the header */
     #header h1 {
-        font-size: 40px; /* Keep your existing size or adjust as needed */
-        font-weight: bold;
-        margin-top: 100px; /* Add space above the h1 */
-        margin-bottom: 15px; /* Add space below the h1 */
+        font-size: 40px; /* Large font size for h1 */
+        font-weight: bold; /* Bold font style */
+        margin-top: 100px; /* Space above the h1 */
+        margin-bottom: 15px; /* Space below the h1 */
     }
+
+    /* Style for subheading (h3) in the header */
     #header h3 {
-        font-family: 'Times New Roman', Times, serif; /* Apply Times New Roman */
-        font-size: 25px; /* Smaller font size for h3 */
-        color: #333; /* Optional: adjust the color to fit your design */
-        margin-top: 0; /* Removes any default margin above the h3 */
-        margin-bottom: 10px; /* Add some space below the h3 */
+        font-family: 'Times New Roman', Times, serif; /* Times New Roman font for a more formal look */
+        font-size: 25px; /* Font size for h3 */
+        color: #333; /* Dark grey text color */
+        margin-top: 0; /* Remove default top margin */
+        margin-bottom: 10px; /* Space below the h3 */
     }
+
+    /* Style for the map container */
     #mapContainer {
-        width: 1000px;
-        height: 600px;
-        margin: 0 auto; /* Centers the map container horizontally */
-        padding-bottom: 20px; /* Adds some space at the bottom */
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Optional: adds a subtle shadow for depth */
+        width: 1000px; /* Fixed width for the map */
+        height: 600px; /* Fixed height for the map */
+        margin: 0 auto; /* Center the map horizontally */
+        padding-bottom: 20px; /* Space below the map */
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow around the map */
     }
 
+    /* Container for popups to make them center aligned */
     .popup-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
+        display: flex; /* Use flexbox for alignment */
+        align-items: center; /* Center content vertically */
+        justify-content: center; /* Center content horizontally */
+        height: 100vh; /* Full height of the viewport */
     }
 
+    /* Style for popup content */
     .popup-content {
-        max-height: 90vh;
-        overflow-y: auto;
-        width: 80%;
+        max-height: 90vh; /* Maximum height to ensure it doesn't touch the viewport edges */
+        overflow-y: auto; /* Enable vertical scrolling if content exceeds the height */
+        width: 80%; /* Width relative to its parent */
     }
 
+    /* Container for the dropdown to align it centrally */
     .centered-dropdown-container {
-        display: flex;
-        justify-content: center; /* This will center the dropdown horizontally */
-        margin-top: 20px; /* Add some space at the top */
+        display: flex; /* Use flexbox for alignment */
+        justify-content: center; /* Center the dropdown horizontally */
+        margin-top: 20px; /* Space above the dropdown */
     }
 
+    /* Style for the dropdown select element */
     .centered-dropdown-container select {
-        width: 50%; /* This will set the width of the dropdown to 50% of its parent */
-        max-width: 400px; /* You can set a max-width if you want */
+        width: 50%; /* Dropdown width as half of its container width */
+        max-width: 400px; /* Maximum width to prevent it from being too wide on larger screens */
     }
-
     </style>
 
   </head>
@@ -80,7 +93,7 @@
 
         <div id="mapContainer"></div>
 
-        <!-- 图例放在地图的右上角 -->
+        <!--  Legend for AQI levels -->
         <div class="mt-4 text-center">
             <div class="inline-block p-3 bg-white rounded-lg shadow">
                 <div class="flex flex-row flex-wrap justify-center items-center">
@@ -108,6 +121,7 @@
             </div>
         </div>
 
+        <!-- Dropdown to select a city -->
         <div class="centered-dropdown-container">
             <label for="citySelect" class="sr-only">Select a City</label> <!-- "sr-only" is often used to hide labels visually but keep them accessible to screen readers -->
             <select id="citySelect" class="mb-4 p-3 bg-white border border-gray-300 rounded-lg">
@@ -115,43 +129,50 @@
             </select>
         </div>
 
+        <!-- Container to display city information -->
         <div id="cityInfo" class="grid grid-cols-3 gap-6 p-6 mx-auto max-w-7xl mb-10">
-
         </div>
 
 
         <script>
-            var platform = new H.service.Platform({
+            // Initialize the platform object:
+            const platform = new H.service.Platform({
                 'apikey': 'qTLNwGnvtdIvJAgrvQ7jZ-V16CXyRGRwe0DSxpbRlZk'
             });
-            var defaultLayers = platform.createDefaultLayers();
-            var map = new H.Map(
+            const defaultLayers = platform.createDefaultLayers();
+            // Create a map object
+            const map = new H.Map(
                 document.getElementById('mapContainer'),
                 defaultLayers.vector.normal.map,
+                // set center and zoom level
                 {
                     zoom: 8,
-                    center: { lat: 42.3314, lng: -83.0458 } // 密歇根州的大致中心点
+                    center: {lat: 42.3314, lng: -83.0458} // Detroit, Michigan
                 }
             );
 
-            var all_data = {{ data|safe }};
+            // get data from the context
+            const all_data = {{ data|safe }};
+            // insert city names into dropdown
             insertCitiesIntoDropdown();
 
+            // add event listener to the dropdown
             const citySelect = document.getElementById('citySelect');
+            // update city info when a city is selected
             citySelect.addEventListener('change', function() {
                 const selectedIndex = citySelect.value;
                 const selectedCity = all_data[selectedIndex];
                 updateCityInfo(selectedCity.current_data);
             });
 
-            // insert all city names into dropdown
+            // insert city names into dropdown
             function insertCitiesIntoDropdown(){
-                var citySelect = document.getElementById('citySelect');
+                const citySelect = document.getElementById('citySelect');
 
                 // Sort the all_data array alphabetically based on cityName
                 all_data.sort(function(a, b) {
-                    var cityA = a.cityName.toUpperCase(); // ignore upper and lowercase
-                    var cityB = b.cityName.toUpperCase(); // ignore upper and lowercase
+                    const cityA = a.cityName.toUpperCase(); // ignore upper and lowercase
+                    const cityB = b.cityName.toUpperCase(); // ignore upper and lowercase
                     if (cityA < cityB) {
                         return -1;
                     }
@@ -165,14 +186,15 @@
 
                 // Insert sorted city names into the dropdown
                 all_data.forEach(function(entry, index) {
-                    var city = entry.cityName;
-                    var option = document.createElement('option');
+                    const city = entry.cityName;
+                    const option = document.createElement('option');
                     option.text = city;
                     option.value = index;
                     citySelect.add(option);
                 });
             }
 
+            // Get the unit for a given pollutant
             function getUnit(pollutant) {
                 const units = {
                     "Humidity": "%",
@@ -193,17 +215,19 @@
                 return units[pollutant] || '';
             }
 
+            // Update the city information
             function updateCityInfo(cityData) {
-                var cityInfoContainer = document.getElementById('cityInfo');
+                const cityInfoContainer = document.getElementById('cityInfo');
                 cityInfoContainer.innerHTML = '';
 
+                // Loop through each pollutant in the cityData object
                 Object.entries(cityData).forEach(([key, value]) => {
-                    var pollutant = key;
-                    var pollutantData = value;
-                    var pollutantValue = pollutantData[0];
-                    var pollutantLevel = getLevel(pollutantData[1], pollutant);
+                    const pollutant = key;
+                    const pollutantData = value;
+                    const pollutantValue = pollutantData[0];
+                    const pollutantLevel = getLevel(pollutantData[1], pollutant);
 
-                    var pollutantContainer = document.createElement('div');
+                    const pollutantContainer = document.createElement('div');
                     pollutantContainer.className = 'bg-white rounded-xl shadow-md overflow-hidden w-64 mx-auto';
                     pollutantContainer.innerHTML = `
                         <div class="p-4 text-center">
@@ -219,6 +243,7 @@
                 });
             }
 
+            // Get the level for a given score and pollutant
             function getLevel(score, pollutant) {
                 // Only show level for AQI and pollutant data
                 if (["PM2.5", "NO2", "O3", "AQI", 'CO', 'CO2', 'PM10', 'SO2', 'PM10'].includes(pollutant)) {
@@ -235,6 +260,7 @@
                 return "N/A"; // No level for other types of data
             }
 
+            // Get the color for a given score
             function getMarkerColor(score) {
                 if (score === 1) {
                     return "#52FF33";
@@ -249,26 +275,32 @@
                 }
             }
 
+            // Add city markers to the map
             function addCityMarkers(map) {
                 all_data.forEach(function(entry, index) {
-                    var city = entry.cityName;
-                    var lat = entry.lat;
-                    var lng = entry.lng;
+                    const city = entry.cityName;
+                    const lat = entry.lat;
+                    const lng = entry.lng;
 
-                    var current_data = entry.current_data;
-                    var future_data = entry.future_data;
-                    var current_aqi_score = current_data["AQI"][1];
+                    const current_data = entry.current_data;
+                    const future_data = entry.future_data;
+                    const current_aqi_score = current_data["AQI"][1];
 
-                    var color = getMarkerColor(current_aqi_score);
-                    var svgMarkup = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><circle cx="12" cy="12" r="10" fill="${color}" /></svg>`;
-                    var icon = new H.map.Icon(svgMarkup);
+                    const color = getMarkerColor(current_aqi_score);
+                    const svgMarkup = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><circle cx="12" cy="12" r="10" fill="${color}" /></svg>`;
+                    const icon = new H.map.Icon(svgMarkup);
 
-                    var marker = new H.map.Marker({lat: lat, lng: lng}, {icon:icon});
+                    // Create a marker for the city
+                    const marker = new H.map.Marker({lat: lat, lng: lng}, {icon:icon});
+                    // Add marker to the map
                     marker.addEventListener('tap', function() {
+                        // Create a unique ID for the popup
                         const uniqueId = generateUUID();
+                        // Create a new popup instance
                         const myPopup = new Popup({
                             id: "my-popup",
                             title: `${city}`,
+                            // Use the generated content
                             content: generatePopUpContent(entry, index, uniqueId),
                         });
 
@@ -278,28 +310,35 @@
                         myPopup.onClose = function() {
                             destroyAllCharts();
                         };
+                        // Render the chart in the popup after a delay
                         setTimeout(() => renderChartInPopup(entry, index, uniqueId), 0);
                     });
+                    // Add marker to the map
                     map.addObject(marker);
                 });
             }
 
+            // Generate a unique ID for the popup
             function generateUUID(){
                 return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
                     (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
                 );
             }
 
+            // Generate the content for the popup
             function generatePopUpContent(entry, index, uniqueId) {
-                // 生成三个canvas元素，每个用于显示一个污染物的图表
+                // generate canvas elements for each pollutant
                 const canvasIds = ['O3', 'PM10', 'PM2.5'].map(pollutant => `${pollutant}-${index}-${uniqueId}`);
+                // create canvas elements
                 const canvasElements = canvasIds.map(id =>
                     `<canvas id="${id}" width="600" height="400"></canvas>`
                 ).join('');
 
-                var current_data = entry.current_data;
-                var aqi = current_data["AQI"][0];
-                var aqiLevel = getLevel(current_data["AQI"][1], "AQI");
+                const current_data = entry.current_data;
+                const aqi = current_data["AQI"][0];
+                const aqiLevel = getLevel(current_data["AQI"][1], "AQI");
+
+                // Return the popup content
                 return `
                     <div class="px-6 py-4">
                         <div class="flex items-center justify-between">
@@ -321,18 +360,22 @@
                 }
             }
 
+            // Create a chart using Chart.js
             function createChart(canvasId, labels, data, activePollutant){
                 setCanvasSize(canvasId, 800, 300);
                 const ctx = document.getElementById(canvasId).getContext('2d');
                 if (ctx) {
+                    // Destroy any existing chart instances
                     if (chartInstances[canvasId]) {
                         chartInstances[canvasId].destroy();
                     }
 
+                    // Create a new chart instance
                     chartInstances[canvasId] = new Chart(ctx, {
-                        type: 'line', // 修改为折线图
+                        type: 'line', // Set the chart type
                         data: {
-                            labels: labels, // 使用动态的时间标签
+                            labels: labels, // Set dynamic labels
+                            // Create a dataset for the chart
                             datasets:[{
                                 label: `${activePollutant.toUpperCase()} Index`,
                                 data: data,
@@ -342,30 +385,33 @@
                             }]
                         },
                         options: {
-                            maintainAspectRatio: true,
+                            maintainAspectRatio: true, // Maintain aspect ratio
                             scales: {
                                 y: {
-                                    beginAtZero: true // 根据实际数据调整
+                                    beginAtZero: true // adjust the y-axis to start from zero
                                 }
                             }
                         }
                     });
                 }
             }
-
+            
+            // Function to render the chart in the popup
             function renderChartInPopup(entry, index, uniqueId){
                 destroyAllCharts(); // clean up any existing charts
-
+                
+                // generate canvas elements for each pollutant
                 const canvasIds = ['O3', 'PM10', 'PM2.5'].map(pollutant => `${pollutant}-${index}-${uniqueId}`);
                 const future_data = entry.future_data;
 
                 canvasIds.forEach((canvasId, i) => {
-                    // 假设 future_data 每个污染物有一个对应的数据集
+                    // Get the pollutant information from the canvas ID
                     const pollutant = canvasId.split('-')[0]; // 获取污染物名称
                     const datasets = future_data[pollutant]; // 获取对应污染物的数据集
                     const labels = datasets.map(data => data.day); // 提取日期作为标签
                     const data = datasets.map(data => data.avg); // 提取平均值作为数据
-
+                    
+                    // Create a chart for the pollutant
                     createChart(canvasId, labels, data, pollutant);
                 });
             }
@@ -380,7 +426,8 @@
                 });
                 chartInstances = {}; // Reset the references
             }
-
+            
+            // Function to clear all map markers
             function clearMapMarkers(){
                 map.getObjects().forEach(function(object) {
                     if (object instanceof H.map.Marker) {
@@ -388,14 +435,16 @@
                     }
                 });
             }
-
-
-            var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
-            var ui = H.ui.UI.createDefault(map, defaultLayers);
+    
+            // Add a behavior to the map
+            const behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+            // Create the default UI components
+            const ui = H.ui.UI.createDefault(map, defaultLayers);
             let chartInstances = {}; // a global object to hold chart instances
-            var geoJsonUrl = "{% static 'airQualityApp/data/michigan.json' %}";
+            // Load GeoJSON data
+            const geoJsonUrl = "{% static 'airQualityApp/data/michigan.json' %}";
 
-            // 创建 GeoJSON reader
+            // create a reader object
             let reader = new H.data.geojson.Reader(geoJsonUrl, {
                 disableLegacyMode: true
             });
@@ -403,7 +452,7 @@
             reader.parse();
             map.addLayer(reader.getLayer());
 
-            // 当页面加载完成时添加标记
+            // add city markers to the map when the window loads
             window.onload = function () {
                 addCityMarkers(map);
             }

@@ -1,8 +1,8 @@
 import json
 import os
-from datetime import datetime
 
 
+# categorize the air quality based on the pollutant and concentration
 def air_quality_category(pollutant, concentration):
     if pollutant == 'o3':
         if concentration <= 54:
@@ -81,6 +81,7 @@ def air_quality_category(pollutant, concentration):
         return 0
 
 
+# categorize the air quality based on the AQI
 def aqi_level(aqi):
     if aqi <= 50:
         return 1
@@ -93,7 +94,7 @@ def aqi_level(aqi):
     elif aqi <= 300:
         return 5
 
-
+# process the environmental index name
 def process_environmental_index(name):
     if name == 'h': return 'Humidity'
     if name == 'p': return 'Pressure'
@@ -111,7 +112,7 @@ def process_environmental_index(name):
     return name
 
 
-# 读取JSON数据的函数
+# load JSON data from file for given path
 def load_json_data(filepath):
     if os.path.exists(filepath):
         with open(filepath, 'r') as file:
@@ -119,7 +120,7 @@ def load_json_data(filepath):
     return []
 
 
-# 写入JSON数据到文件的函数
+# save JSON data to file for given path
 def save_json_data(filepath, data):
     with open(filepath, 'w') as file:
         json.dump(data, file, indent=4)

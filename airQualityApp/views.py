@@ -1,7 +1,5 @@
 import concurrent
 import requests
-import json
-import os
 from .utils import *
 from django.conf import settings
 from django.shortcuts import render
@@ -9,6 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 from django.core.serializers.json import DjangoJSONEncoder
 from datetime import datetime
 
+# all cities in south michigan and their coordinates
 cities = [
     {'city': 'Benton Harbor', 'coordinates': {'lat': 42.1167, 'lng': -86.4542}},
     {'city': 'South Haven', 'coordinates': {'lat': 42.4036, 'lng': -86.2733}},
@@ -54,69 +53,81 @@ cities = [
     {'city': 'Coldwater', 'coordinates': {'lat': 41.9403, 'lng': -85.0006}},
     {'city': 'Port Huron', 'coordinates': {'lat': 42.9826, 'lng': -82.4387}}
 ]
+# AQI API TOKEN from settings.py
+TOKEN = settings.TOKEN
 
-token = settings.TOKEN
 
-
+# fetch AQI data for specific city from API
 def fetch_api_data(city):
+    # get city coordinates
     lat = city['coordinates']['lat']
     lng = city['coordinates']['lng']
-    url = f'https://api.waqi.info/feed/geo:{lat};{lng}/?token={token}'
+    # get data from API
+    url = f'https://api.waqi.info/feed/geo:{lat};{lng}/?token={TOKEN}'
     response = requests.get(url)
     data = response.json()
-
+    # process data
     current_data = {
         "AQI": [data["data"]["aqi"], aqi_level(data["data"]["aqi"])],
     }
-
+    # process environmental index
     for key in data["data"]["iaqi"].keys():
         processed_key = process_environmental_index(key)
         if key not in current_data.keys():
             current_data[processed_key] = [data["data"]["iaqi"][key]["v"],
-                                 air_quality_category(key, data["data"]["iaqi"][key]["v"])]
-
+                                           air_quality_category(key, data["data"]["iaqi"][key]["v"])]
+    # process future data
     future_data = {
         "O3": data["data"]["forecast"]["daily"]["o3"],
         "PM10": data["data"]["forecast"]["daily"]["pm10"],
         "PM2.5": data["data"]["forecast"]["daily"]["pm25"]
     }
-
+    # return data
     return {"cityName": city['city'], "lat": lat, "lng": lng,
             "current_data": current_data, "future_data": future_data}
 
 
+# fetch all cities data from API, process them and save to JSON file
 def fetch_api_data_and_process():
     results = []
-
+    # fetch data from API using ThreadPoolExecutor
     with ThreadPoolExecutor(max_workers=10) as executor:
         future_to_all_api = {executor.submit(fetch_api_data, city): city for city in cities}
         for future in concurrent.futures.as_completed(future_to_all_api):
             all_api_data = future.result()
             results.append(all_api_data)
 
-    # 序列化结果为JSON字符串
+    # save data to JSON file
     json_results = json.dumps(results, cls=DjangoJSONEncoder)
     return json_results
 
 
+# view for map
 def mapView(request):
+    # get data from cache
     filepath = os.path.join(settings.BASE_DIR, 'airQualityApp/data.json')
     data_list = load_json_data(filepath)
+    # get today's date
     today_str = datetime.now().strftime("%Y-%m-%d")
 
+    # check if data is in cache
     if data_list and data_list[-1].get("date") == today_str:
         print("Getting data from cache")
+        # get data from cache
         result = data_list[-1].get("data")
     else:
         print("Asking new data")
+        # get data from API
         result = fetch_api_data_and_process()
         data_list.append({"date": today_str, "data": result})
+        # save data to cache
         save_json_data(filepath, data_list)
 
+    # context for map
     context = {
         'title': 'Air Quality Index',
         'content': 'Welcome to the air quality index page.',
-        'data': result  # 使用从缓存获取的数据
+        'data': result
     }
 
     return render(request, 'airQualityApp/index.html', context)

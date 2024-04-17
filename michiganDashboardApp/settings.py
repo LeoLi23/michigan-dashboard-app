@@ -15,8 +15,8 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# TOKEN for the Air Quality Index API: aqicn.org
 TOKEN = '77321fcc19f6850d9b046aa282f94de6688337ea'
-#TOKEN = os.getenv('TOKEN')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '-xj^kvmgc2j9jjxqpvvt*%)1+y4c06i&@0c@g4*%sd$&4u8-_#'
@@ -36,7 +36,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'airQualityApp',
-    'climateApp',
     'homeApp',
 ]
 

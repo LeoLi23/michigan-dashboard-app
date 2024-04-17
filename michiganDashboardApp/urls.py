@@ -16,13 +16,10 @@ Including another URLconf
 from django.urls import path, include
 from django.contrib import admin
 
+# URL patterns for michiganDashboardApp
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('admin/', admin.site.urls), # add admin's URLs
     path('', include('homeApp.urls')),  # add homeApp's URLs
-    path('climate/', include('climateApp.urls')),  # add airQualityApp's URLs
     path('air-quality/', include('airQualityApp.urls')),  # add airQualityApp's URLs
 ]
-
-# command to create a project named homeApp
-# python manage.py startapp homeApp
 
